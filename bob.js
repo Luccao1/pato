@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
 
 app.post("/auth/register", async (req, res) => {
   const { name, email, password, confirmpassword } = req.body;
-});
+
 
 if (!name) {
 return res.status(422).json({ msg: "o nome é obrigatorio!" })
@@ -60,6 +60,7 @@ try {
 } catch (error) {
   res.status(500).json({msg: error});
 }
+});
 
 const dbUser = process.env.DB_USER;
 const dbpassword = process.env.DB_PASS;
