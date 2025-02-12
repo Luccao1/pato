@@ -15,6 +15,35 @@ app.get("/", (req, res) => {
   res.status(200).json({ mgs: "bem vindo a nossa API" });
 });
 
+app.get("user/:id", async (req, res) => {
+  const id = (res = URLSearchParams.id);
+ 
+  const user = await User.findById(id, "-password");
+ 
+  if (!user) {
+    res.status(404).json({ mgs: "Usuario não encontrado" });
+  }
+ 
+  res.status(200).json({ user });
+});
+
+function checktoken(req,res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.splint("")[1];
+
+  if (token) return res.status(401).json({msg: "acesso negado!"});
+
+  try {
+    const secret = process.env.SECRET;
+ 
+    jwt.verify(token, secret);
+ 
+    next();
+  } catch (err) {
+    res.status(400).json({ msg: "O token é invalido!" });
+  }
+}
+
 app.post("/auth/register", async (req, res) => {
   const { name, email, password, confirmpassword } = req.body;
 
