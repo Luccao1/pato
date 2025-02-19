@@ -15,7 +15,7 @@ app.get("/", (req, res) => {
   res.status(200).json({ mgs: "bem vindo a nossa API" });
 });
 
-app.get("user/:id", async (req, res) => {
+app.get("/user/:id", checktoken, async (req, res) => {
   const id = (res = URLSearchParams.id);
  
   const user = await User.findById(id, "-password");
@@ -27,18 +27,18 @@ app.get("user/:id", async (req, res) => {
   res.status(200).json({ user });
 });
 
-function checktoken(req,res, next) {
+function checktoken (req,res,next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.splint("")[1];
+  const token = authHeader && authHeader.split(" ")[1];
 
-  if (token) return res.status(401).json({msg: "acesso negado!"});
-
+  if (!token) return res.status(401).json({msg: "acesso negado!"});
+ 
   try {
     const secret = process.env.SECRET;
  
     jwt.verify(token, secret);
  
-    next();
+    next(); 
   } catch (err) {
     res.status(400).json({ msg: "O token é invalido!" });
   }
@@ -77,7 +77,7 @@ app.post("/auth/register", async (req, res) => {
   const user = new User({
     name,
     email,
-    passwordhast,
+    password: passwordhast,
   });
 
   try {
@@ -106,7 +106,7 @@ if (!user) {
   return res.status(404).json({msg: "usuario nao encontrado!"});
 }
 
-const checkPassword = await bcrypt.compare(password, User.password);
+const checkPassword = await bcrypt.compare(password, user.password);
 
   if (!checkPassword) {
     return res.status(422).json({msg: "senha invalida, tente novamente."});
@@ -140,4 +140,4 @@ mongoose
     app.listen(3000);
     console.log("conectou ao banco");
   })
-  .catch((err) => console.log(err));
+  .catch((err) => console.log(err)); 
